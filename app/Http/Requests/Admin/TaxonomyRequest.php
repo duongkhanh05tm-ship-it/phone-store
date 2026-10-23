@@ -1,0 +1,5 @@
+<?php
+namespace App\Http\Requests\Admin;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+class TaxonomyRequest extends FormRequest { public function authorize(): bool { return true; } public function rules(): array { $type=$this->route('type'); $taxonomy=$this->route('taxonomy'); $id=is_object($taxonomy)?$taxonomy->id:$taxonomy; $table=$type==='brands'?'brands':'categories'; return ['name'=>['required','string','max:255'],'slug'=>['required','string','max:255',Rule::unique($table,'slug')->ignore($id)],'description'=>['nullable','string'],'is_active'=>['sometimes','boolean'],'logo'=>['nullable','image','mimes:jpg,jpeg,png,webp','max:2048']]; } public function messages(): array { return ['name.required'=>'Vui lòng nhập tên.','slug.unique'=>'Slug đã tồn tại.','logo.image'=>'Logo phải là hình ảnh hợp lệ.','logo.mimes'=>'Logo chỉ nhận JPG, JPEG, PNG hoặc WEBP.','logo.max'=>'Logo tối đa 2MB.']; } }

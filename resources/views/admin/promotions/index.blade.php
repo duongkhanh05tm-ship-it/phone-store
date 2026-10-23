@@ -1,0 +1,8 @@
+@extends('layouts.admin')
+@section('title','Ưu đãi - Admin')
+@section('admin_content')
+<div class="d-flex justify-content-between align-items-center mb-3"><h2>Ưu đãi</h2><a class="btn btn-danger" href="{{ route('admin.promotions.create') }}">Thêm ưu đãi</a></div>
+<div class="table-responsive bg-white shadow-sm"><table class="table align-middle"><thead><tr><th>Tiêu đề</th><th>Sản phẩm</th><th>Thời gian</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+@forelse($promotions as $promotion)<tr><td><strong>{{ $promotion->title }}</strong><br><small>{{ $promotion->content }}</small></td><td>{{ $promotion->product->name }}</td><td>{{ $promotion->starts_at?->format('d/m/Y H:i') ?? 'Ngay' }} – {{ $promotion->ends_at?->format('d/m/Y H:i') ?? 'Không hạn' }}</td><td><span class="badge text-bg-{{ $promotion->is_active?'success':'secondary' }}">{{ $promotion->is_active?'Đang bật':'Đã tắt' }}</span></td><td class="text-nowrap"><a class="btn btn-sm btn-outline-primary" href="{{ route('admin.promotions.edit',$promotion) }}">Sửa</a><form class="d-inline" method="POST" action="{{ route('admin.promotions.status',$promotion) }}">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-secondary">{{ $promotion->is_active?'Tắt':'Bật' }}</button></form><form class="d-inline" method="POST" action="{{ route('admin.promotions.destroy',$promotion) }}" onsubmit="return confirm('Xóa ưu đãi này?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Xóa</button></form></td></tr>@empty<tr><td colspan="5" class="text-center py-4">Chưa có ưu đãi</td></tr>@endforelse
+</tbody></table></div>{{ $promotions->links() }}
+@endsection

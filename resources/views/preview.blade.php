@@ -1,0 +1,8 @@
+@extends('layouts.app')
+
+@section('title', 'Preview giao diện - PhoneStore')
+
+@section('content')
+<section class="ps-hero py-5"><div class="container"><div class="row align-items-center g-4"><div class="col-lg-7"><span class="badge ps-hero-badge mb-3">PHONESTORE PREVIEW</span><h1 class="display-5 fw-bold">Công nghệ trong tầm tay, <span>lựa chọn thật dễ dàng.</span></h1><p class="lead text-white-50">Trang preview nền tảng giao diện PhoneStore. Chức năng sản phẩm và đặt hàng sẽ được phát triển ở phase tiếp theo.</p><a class="btn btn-light px-4" href="#san-pham">Khám phá mẫu giao diện <i class="bi bi-arrow-down ms-1"></i></a></div><div class="col-lg-5 text-center"><i class="bi bi-phone ps-hero-icon" aria-hidden="true"></i></div></div></div></section>
+<section class="container py-5" id="san-pham"><div class="d-flex justify-content-between align-items-end mb-4"><div><span class="ps-section-kicker">GỢI Ý CHO BẠN</span><h2 class="h3 fw-bold mb-0">Sản phẩm nổi bật</h2></div><span class="text-muted small">Dữ liệu minh họa</span></div><div class="row g-3 g-md-4"><div class="col-6 col-lg-3"><x-product-card name="PhoneStore Pro X" price="19990000" old-price="21990000" discount="9" ram="8GB" rom="256GB" /></div><div class="col-6 col-lg-3"><x-product-card name="PhoneStore Air 5G" price="12990000" ram="8GB" rom="128GB" /></div><div class="col-6 col-lg-3"><x-product-card name="PhoneStore Note Ultra" price="15990000" old-price="17490000" discount="8" ram="12GB" rom="256GB" /></div><div class="col-6 col-lg-3"><x-product-card name="PhoneStore Mini" price="8990000" ram="6GB" rom="128GB" /></div></div></section>
+@endsection

@@ -1,0 +1,9 @@
+@extends('layouts.app')
+@section('title', 'Giỏ hàng - PhoneStore')
+@section('content')
+<div class="container py-5"><h1 class="h3 fw-bold mb-4">Giỏ hàng</h1>
+@if($cart->items->isEmpty())<div class="alert alert-light border text-center py-5">Giỏ hàng đang trống. <a href="{{ route('products.index') }}">Tiếp tục mua sắm</a></div>
+@else @php $total=0; @endphp
+<div class="row g-4"><div class="col-lg-8">@foreach($cart->items as $item) @php $variant=$item->variant; $price=($variant->sale_price !== null && $variant->sale_price < $variant->price) ? $variant->sale_price : $variant->price; $total += $price*$item->quantity; @endphp
+<div class="card mb-3"><div class="card-body d-flex flex-wrap gap-3 align-items-center"><div class="flex-grow-1"><h2 class="h6 mb-1">{{ $variant->product->name }}</h2><div class="small text-muted">{{ implode(' · ', array_filter([$variant->ram,$variant->storage,$variant->color])) }} · {{ number_format($price,0,',','.') }}đ</div></div><form method="POST" action="{{ route('cart.items.update',$item) }}" class="d-flex gap-2">@csrf @method('PATCH')<input class="form-control" style="width:90px" type="number" min="1" max="{{ $variant->stock_quantity }}" name="quantity" value="{{ $item->quantity }}"><button class="btn btn-outline-secondary">Cập nhật</button></form><strong>{{ number_format($price*$item->quantity,0,',','.') }}đ</strong><form method="POST" action="{{ route('cart.items.destroy',$item) }}">@csrf @method('DELETE')<button class="btn btn-outline-danger">Xóa</button></form></div></div>@endforeach</div><div class="col-lg-4"><div class="card"><div class="card-body"><div class="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong class="text-danger">{{ number_format($total,0,',','.') }}đ</strong></div><a class="btn ps-btn-primary w-100" href="{{ route('checkout.index') }}">Tiến hành đặt hàng</a></div></div></div></div>@endif</div>
+@endsection

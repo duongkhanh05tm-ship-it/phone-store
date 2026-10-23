@@ -1,0 +1,5 @@
+<?php
+namespace App\Http\Requests\Admin;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+class VariantRequest extends FormRequest { public function authorize(): bool { return true; } public function rules(): array { $variant=$this->route('variant'); $id=is_object($variant)?$variant->id:$variant; return ['sku'=>['required','string','max:255',Rule::unique('product_variants','sku')->ignore($id)],'color'=>['nullable','string','max:255'],'ram'=>['nullable','string','max:255'],'storage'=>['nullable','string','max:255'],'price'=>['required','numeric','min:0'],'sale_price'=>['nullable','numeric','min:0','lte:price'],'stock_quantity'=>['required','integer','min:0'],'is_active'=>['sometimes','boolean']]; } public function messages(): array { return ['sku.required'=>'Vui lòng nhập SKU.','sku.unique'=>'SKU đã tồn tại.','price.min'=>'Giá không được âm.','sale_price.lte'=>'Giá khuyến mãi không được lớn hơn giá gốc.','stock_quantity.min'=>'Tồn kho không được âm.']; } }
