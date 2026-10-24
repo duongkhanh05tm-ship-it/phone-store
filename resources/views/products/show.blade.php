@@ -158,7 +158,12 @@
                         @foreach($specifications as $group)
                             <h3 class="h6 text-uppercase mt-3">{{ $group['group'] }}</h3>
                             <div class="table-responsive"><table class="table table-sm table-striped"><tbody>@foreach($group['rows'] as $row)<tr><th class="fw-normal">{{ $row['name'] }}</th><td>{{ $row['value'] }}</td></tr>@endforeach</tbody></table></div>
-
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <section class="mt-5 ps-reviews" aria-labelledby="reviews-title">
         <h2 id="reviews-title" class="h4 mb-3">ĐÁNH GIÁ {{ $product->name }}</h2>

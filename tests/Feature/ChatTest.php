@@ -33,6 +33,20 @@ class ChatTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_price_answer_uses_current_database_variant_price(): void
+    {
+        config(['services.ai_chat' => ['enabled' => true, 'api_key' => 'secret-key', 'base_url' => 'https://ai.example.test/v1', 'model' => 'test-model', 'timeout' => 20]]);
+        $product = $this->product();
+        Http::fake();
+
+        $response = $this->postJson(route('chat.store'), ['message' => 'Phone Test giá bao nhiêu?']);
+
+        $response->assertOk()->assertJsonPath('configured', false);
+        $this->assertStringContainsString('4.000.000đ', $response->json('message'));
+        $this->assertStringContainsString($product->name, $response->json('message'));
+        Http::assertNothingSent();
+    }
+
     public function test_provider_receives_database_context_and_returns_answer(): void
     {
         config(['services.ai_chat' => ['enabled' => true, 'api_key' => 'secret-key', 'base_url' => 'https://ai.example.test/v1', 'model' => 'test-model', 'timeout' => 20]]);

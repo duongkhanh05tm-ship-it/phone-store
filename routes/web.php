@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [OrderController::class, 'place'])->name('checkout.store');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store'])->name('products.reviews.store');
 });
 
@@ -61,7 +62,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('orders/{order}/status', [AdminOrderController::class, 'status'])->name('orders.status');
     Route::patch('orders/{order}/payment-status', [AdminOrderController::class, 'paymentStatus'])->name('orders.payment-status');
-    Route::resource('products', AdminProductController::class)->except(['show','destroy']);
+    Route::resource('products', AdminProductController::class)->except(['show']);
     Route::resource('promotions', PromotionController::class)->except(['show']);
     Route::resource('banners', BannerController::class)->except(['show']);
     Route::patch('banners/{banner}/status', [BannerController::class, 'status'])->name('banners.status');

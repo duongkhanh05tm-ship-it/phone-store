@@ -53,8 +53,29 @@ class OrderController extends Controller
     }
 
     public function index(): View
-    { return view('orders.index', ['orders' => auth()->user()->orders()->latest()->paginate(10)]); }
+    { return view('orders.index', ['orders' => auth()->user()->orders()->with('items')->latest()->paginate(10)]); }
 
     public function show(Order $order): View
     { abort_unless($order->user_id === auth()->id(), 404); return view('orders.show', compact('order')); }
+
+    public function cancel(Order $order): RedirectResponse
+    {
+        abort_unless($order->user_id === auth()->id(), 404);
+        if (!in_array($order->order_status, ['pending', 'confirmed'], true)) {
+            return back()->withErrors(['order' => 'Đơn hàng chỉ có thể hủy khi chưa chuyển sang giao hàng.']);
+        }
+        DB::transaction(function () use ($order) {
+            $locked = Order::with('items')->lockForUpdate()->findOrFail($order->id);
+            if (!in_array($locked->order_status, ['pending', 'confirmed'], true)) {
+                throw ValidationException::withMessages(['order' => 'Đơn hàng đã được xử lý, không thể hủy.']);
+            }
+            foreach ($locked->items as $item) {
+                $variant = ProductVariant::lockForUpdate()->find($item->product_variant_id);
+                if ($variant) $variant->increment('stock_quantity', $item->quantity);
+            }
+            $locked->update(['order_status' => 'cancelled']);
+        });
+        auth()->user()->notify(new OrderNotification($order->fresh(), 'Đơn hàng #'.$order->id.' đã được hủy.'));
+        return back()->with('status', 'Đã hủy đơn hàng và hoàn lại sản phẩm vào kho.');
+    }
 }

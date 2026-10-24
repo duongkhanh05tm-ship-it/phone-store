@@ -13,6 +13,13 @@ class PhoneStoreChatService
     public function answer(string $message): array
     {
         $matches = $this->products->find($message);
+
+        // Câu hỏi về giá phải lấy trực tiếp từ database để AI không thể tự suy đoán
+        // hoặc nhầm giá gốc của một biến thể khác.
+        if ($this->isPriceQuestion($message) && $matches->isNotEmpty()) {
+            return ['message' => $this->priceAnswer($matches), 'configured' => false, 'products' => $this->products->cards($matches)];
+        }
+
         $context = $this->products->context($matches);
         $config = config('services.ai_chat');
         if (!$config['enabled'] || blank($config['api_key']) || blank($config['base_url']) || blank($config['model'])) {
@@ -34,6 +41,29 @@ class PhoneStoreChatService
             if ($exception instanceof RuntimeException && $exception->getMessage() === 'rate_limit') throw $exception;
             throw new RuntimeException('provider_unavailable', 0, $exception);
         }
+    }
+
+    private function isPriceQuestion(string $message): bool
+    {
+        return (bool) preg_match('/giá|bao nhiêu|bao nhieu|giá bán|giá bao|khuyến mãi|khuyen mai|giảm|giam/u', mb_strtolower($message));
+    }
+
+    private function priceAnswer($matches): string
+    {
+        $lines = $matches->filter(fn ($item) => $item['score'] > 0)->take(3)->map(function ($item) {
+            $prices = $item['variants']->map(function ($variant) {
+                $current = $variant->sale_price !== null && $variant->sale_price < $variant->price
+                    ? $variant->sale_price
+                    : $variant->price;
+                $label = trim(implode(' · ', array_filter([$variant->ram, $variant->storage, $variant->color])));
+                return ($label ? $label.' — ' : '').number_format((float) $current, 0, ',', '.').'đ';
+            })->implode('; ');
+            return '**'.$item['product']->name.'**: '.$prices.' ('.route('products.show', $item['product']->slug).')';
+        })->values();
+
+        return $lines->isEmpty()
+            ? 'Hiện chưa tìm thấy sản phẩm phù hợp trong dữ liệu PhoneStore.'
+            : 'Giá hiện tại theo dữ liệu sản phẩm trên PhoneStore:\n- '.$lines->implode("\n- ");
     }
 
     private function fallback($matches): string
